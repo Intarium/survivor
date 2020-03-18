@@ -3,8 +3,7 @@ import contextlib
 with contextlib.redirect_stdout(None):
     import pygame
 from client import Network
-import random
-import os
+
 
 pygame.font.init()
 
@@ -49,7 +48,7 @@ def convert_time(t):
         return minutes + ":" + seconds
 
 
-def redraw_window(players, game_time, score, map):
+def redraw_window(players, game_time, score, map, WIN):
     global animCount
     anim = [0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5]
     WIN.fill((255, 255, 255))
@@ -98,6 +97,8 @@ def redraw_window(players, game_time, score, map):
         animCount = 0
 
 def main(name):
+    WIN = pygame.display.set_mode((W, H))
+    pygame.display.set_caption("Survivor")
     global players, WALK_COUNT, isJump, jumpCount
     # start by connecting to the network
     server = Network()
@@ -151,7 +152,7 @@ def main(name):
 
         players, game_time = server.send(data)
 
-        redraw_window(players, game_time, player["score"], map)
+        redraw_window(players, game_time, player["score"], map, WIN)
         pygame.display.update()
 
     server.disconnect()
@@ -159,20 +160,4 @@ def main(name):
     quit()
 
 
-# get users name
-while True:
-    name = input("Please enter your name: ")
-    if 0 < len(name) < 20:
-        break
-    else:
-        print("Error, this name is not allowed (must be between 1 and 19 characters [inclusive])")
 
-# make window start in top left hand corner
-os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (0, 30)
-
-# setup pygame window
-WIN = pygame.display.set_mode((W, H))
-pygame.display.set_caption("Survivor")
-
-# start game
-main(name)
